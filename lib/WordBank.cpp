@@ -11,8 +11,6 @@ int WordBank::wordCount(std::ifstream &db) {
     while (db >> s)
         cnt++;
 
-    db.close();
-
     return cnt;
 }
 
@@ -34,14 +32,18 @@ void WordBank::addWord(const char *word) {
     db.close();
 }
 
+#include <iostream>
+
 std::string WordBank::getRandomWord() {
     std::ifstream db("words.db");
     int sel = rand() % wordCount(db);
 
+    db.close();
+    db.open("words.db");
     db.seekg(0, std::ios::beg);
 
     std::string s;
-    for (int i = 0; i < sel; i++)
+    for (int i = 0; i <= sel; i++)
         db >> s;
 
     db.close();
