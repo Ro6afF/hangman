@@ -1,39 +1,39 @@
-#include "Game.hpp"
-#include "User.hpp"
-#include "WordBank.hpp"
+#include "Hangman.hpp"
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
 
 int main() {
     srand(time(0));
-    User::signUp("banan", "banan", "banan");
-    User::signUp("kartof", "kartof", "kartof");
-    User::signUp("chushka", "chushka", "chushka");
+    Hangman::run(std::cin, std::cout);
 
-    WordBank::addWord("banan");
-    WordBank::addWord("kartof");
-    WordBank::addWord("chushka");
+    // User::signUp("banan", "banan", "banan");
+    // User::signUp("kartof", "kartof", "kartof");
+    // User::signUp("chushka", "chushka", "chushka");
 
-    User::signIn("banan", "banan");
+    // WordBank::addWord("banan");
+    // WordBank::addWord("kartof");
+    // WordBank::addWord("chushka");
 
-    Game g;
-    char c;
-    do {
-        std::cout << g;
-        std::cin >> c;
-        g.guess(c);
-    } while (!g.isWon());
+    // User::signIn("banan", "banan");
 
-    User::signIn("kartof", "kartof");
-    g = Game();
-    do {
-        std::cout << g;
-        std::cin >> c;
-        g.guess(c);
-    } while (!g.isWon());
+    // Game g;
+    // char c;
+    // do {
+    //     std::cout << g;
+    //     std::cin >> c;
+    //     g.guess(c);
+    // } while (!g.isWon());
 
-    for (auto &x : User::getStanding()) {
-        std::cout << x.second << " " << x.first << std::endl;
-    }
+    // User::signIn("kartof", "kartof");
+    // g = Game();
+    // do {
+    //     std::cout << g;
+    //     std::cin >> c;
+    //     g.guess(c);
+    // } while (!g.isWon());
+
+    // for (auto &x : User::getStanding()) {
+    //     std::cout << x.second << " " << x.first << std::endl;
+    // }
 }
