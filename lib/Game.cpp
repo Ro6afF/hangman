@@ -2,9 +2,14 @@
 
 #include "User.hpp"
 #include "WordBank.hpp"
+#include <algorithm>
+#include <cstring>
 #include <fstream>
 
 Game::Game() {
+    if (User::getUser() == nullptr)
+        throw std::logic_error("User not logged in!");
+
     this->word = WordBank::getRandomWord();
 
     for (int i = 'A'; i <= 'Z'; i++) {
@@ -17,6 +22,13 @@ Game::Game() {
 }
 
 Game::Game(const char *file) {
+    if (User::getUser() == nullptr)
+        throw std::logic_error("User not logged in!");
+
+    std::string fileStr(file);
+    if (fileStr.find(User::getUser()->getUsername()) == std::string::npos)
+        throw std::logic_error("Not your game!");
+
     std::ifstream game(file);
     game.seekg(0, std::ios::beg);
     game.read(reinterpret_cast<char *>(&this->lives), sizeof(this->lives));

@@ -1,10 +1,12 @@
 #include "Hangman.hpp"
 
+#include "Game.hpp"
 #include "User.hpp"
 #include "WordBank.hpp"
 
 std::istream *Hangman::inp = nullptr;
 std::ostream *Hangman::out = nullptr;
+Game *Hangman::current = nullptr;
 
 void Hangman::help() {
     std::ostream &out = *Hangman::out;
@@ -74,6 +76,63 @@ void Hangman::addWord() {
     }
 }
 
+void Hangman::start() {
+    std::ostream &out = *Hangman::out;
+
+    try {
+        current = new Game();
+    } catch (std::logic_error &e) {
+        out << "[ " << e.what() << " ]" << std::endl;
+    }
+}
+
+void Hangman::continueGame() {
+    std::istream &inp = *Hangman::inp;
+    std::ostream &out = *Hangman::out;
+
+    std::string file;
+    out << "Enter file name: ";
+    inp >> file;
+
+    try {
+        current = new Game(file.c_str());
+    } catch (std::logic_error &e) {
+        out << "[ " << e.what() << " ]" << std::endl;
+    }
+}
+
+void Hangman::save() {
+    std::ostream &out = *Hangman::out;
+
+    current->save();
+    delete current;
+    current = nullptr;
+
+    out << "[ Current game stopped and saved to file ]" << std::endl;
+}
+
+void Hangman::exit() {
+    std::istream &inp = *Hangman::inp;
+    std::ostream &out = *Hangman::out;
+
+    if (current != nullptr) {
+        out << "Do you want to save the game to a file? [yes / no]:\n";
+        std::string ans;
+        inp >> ans;
+        for (size_t i = 0; i < ans.size(); i++)
+            if (ans[i] >= 'A' && ans[i] <= 'Z')
+                ans[i] = ans[i] + 'a' - 'A';
+
+        if (ans == "yes") {
+            current->save();
+            out << "[ Saved! ]\n";
+        }
+        delete current;
+        current = nullptr;
+    }
+    out << "Bye!" << std::endl;
+}
+
 void Hangman::run(std::istream &inp, std::ostream &out) {
     Hangman::inp = &inp;
     Hangman::out = &out;
@@ -82,7 +141,12 @@ void Hangman::run(std::istream &inp, std::ostream &out) {
     std::string cmd;
     help();
     do {
-        out << "$ ";
+        if (current == nullptr)
+            out << "$ ";
+        else {
+            out << *current;
+            out << "Pick a letter --> ";
+        }
         inp >> cmd;
 
         for (size_t i = 0; i < cmd.size(); i++)
@@ -90,15 +154,23 @@ void Hangman::run(std::istream &inp, std::ostream &out) {
                 cmd[i] = cmd[i] + 'a' - 'A';
 
         if (cmd == "exit")
-            out << "Bye!" << std::endl;
+            exit();
         else if (cmd == "help")
             help();
-        else if (cmd == "login")
+        else if (current == nullptr && cmd == "login")
             login();
-        else if (cmd == "register")
+        else if (current == nullptr && cmd == "register")
             signUp();
-        else if (cmd == "addword")
+        else if (current == nullptr && cmd == "addword")
             addWord();
+        else if (current == nullptr && cmd == "start")
+            start();
+        else if (current == nullptr && cmd == "continue")
+            continueGame();
+        else if (current != nullptr && cmd == "#")
+            save();
+        else if (current != nullptr && cmd.size() == 1)
+            current->guess(cmd[0]);
         else
             out << "Command not found..." << std::endl;
     } while (cmd != "exit");
