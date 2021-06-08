@@ -13,7 +13,7 @@ Game::Game() {
     guessed[word[0] - 'A'] = true;
     won = false;
 
-    this->lives = 7;
+    this->lives = 6;
 }
 
 Game::Game(const char *file) {
@@ -53,7 +53,7 @@ void Game::guess(char c) {
     if (c < 'A' || c > 'Z')
         throw std::invalid_argument("Input not a letter");
 
-    if (!won && !this->guessed[c - 'A']) {
+    if (!won && !lost && !this->guessed[c - 'A']) {
         this->guessed[c - 'A'] = true;
         for (char &x : this->word) {
             if (x == c) {
@@ -63,6 +63,7 @@ void Game::guess(char c) {
         }
 
         this->lives--;
+        lost = lives == 0;
     }
 }
 
@@ -94,6 +95,10 @@ bool Game::isWon() const {
     return this->won;
 }
 
+bool Game::isLost() const {
+    return this->lost;
+}
+
 std::ostream &operator<<(std::ostream &os, const Game &game) {
     for (const char &x : game.word)
         os << (game.guessed[x - 'A'] ? x : '_') << " ";
@@ -106,6 +111,6 @@ std::ostream &operator<<(std::ostream &os, const Game &game) {
         if (game.guessed[i - 'A'])
             os << " " << i;
     os << std::endl;
-    os << ART[game.lives - 1] << std::endl;
+    os << ART[game.lives] << std::endl;
     return os;
 }

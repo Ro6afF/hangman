@@ -10,6 +10,7 @@ class Game {
     bool guessed['Z' - 'A' + 1];
     int lives;
     bool won;
+    bool lost;
 
     void checkWin();
 
@@ -19,12 +20,69 @@ class Game {
 
     void guess(char c);
     void save() const;
-    
+
     bool isWon() const;
+    bool isLost() const;
 
     friend std::ostream &operator<<(std::ostream &os, const Game &game);
 };
 
-const std::string ART[] = {"7", "6", "5", "4", "3", "2", "1"};
+const std::string ART[] = {
+    "  +---+  \n"
+    "  |   |  \n"
+    "  O   |  \n"
+    " /|\\  |  \n"
+    " / \\  |  \n"
+    "      |  \n"
+    "=========\n",
+
+    "  +---+  \n"
+    "  |   |  \n"
+    "  O   |  \n"
+    " /|\\  |  \n"
+    " /    |  \n"
+    "      |  \n"
+    "=========\n",
+
+    "  +---+  \n"
+    "  |   |  \n"
+    "  O   |  \n"
+    " /|\\  |  \n"
+    "      |  \n"
+    "      |  \n"
+    "=========\n",
+
+    "  +---+  \n"
+    "  |   |  \n"
+    "  O   |  \n"
+    " /|   |  \n"
+    "      |  \n"
+    "      |  \n"
+    "=========\n",
+
+    "  +---+  \n"
+    "  |   |  \n"
+    "  O   |  \n"
+    "  |   |  \n"
+    "      |  \n"
+    "      |  \n"
+    "=========\n",
+
+    "  +---+  \n"
+    "  |   |  \n"
+    "  O   |  \n"
+    "      |  \n"
+    "      |  \n"
+    "      |  \n"
+    "=========\n",
+
+    "  +---+  \n"
+    "  |   |  \n"
+    "      |  \n"
+    "      |  \n"
+    "      |  \n"
+    "      |  \n"
+    "=========\n",
+};
 
 #endif // __GAME_HPP
