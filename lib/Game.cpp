@@ -11,6 +11,7 @@ Game::Game() {
         this->guessed[i - 'A'] = false;
     }
     guessed[word[0] - 'A'] = true;
+    won = false;
 
     this->lives = 7;
 }
@@ -28,20 +29,41 @@ Game::Game(const char *file) {
     char *c = new char[len];
     game.read(c, sizeof(char) * len);
     this->word = c;
+    this->checkWin();
 
     delete[] c;
     game.close();
 }
 
-void Game::guess(char c) {
-    this->guessed[c - 'A'] = true;
-    for (char &x : this->word) {
-        if (x == c) {
-            return;
-        }
-    }
+void Game::checkWin() {
+    this->won = true;
+    for (const char &x : this->word)
+        this->won &= this->guessed[x - 'A'];
 
-    this->lives--;
+    if (won) {
+        this->save();
+        User::getUser()->addGuessed(this->word.c_str());
+    }
+}
+
+void Game::guess(char c) {
+    if (c >= 'a' && c <= 'z')
+        c = c - 'a' + 'A';
+
+    if (c < 'A' || c > 'Z')
+        throw std::invalid_argument("Input not a letter");
+
+    if (!won && !this->guessed[c - 'A']) {
+        this->guessed[c - 'A'] = true;
+        for (char &x : this->word) {
+            if (x == c) {
+                this->checkWin();
+                return;
+            }
+        }
+
+        this->lives--;
+    }
 }
 
 void Game::save() const {
@@ -54,7 +76,8 @@ void Game::save() const {
                        std::ios::binary);
 
     game.seekp(0, std::ios::beg);
-    game.write(reinterpret_cast<const char *>(&this->lives), sizeof(this->lives));
+    game.write(reinterpret_cast<const char *>(&this->lives),
+               sizeof(this->lives));
 
     game.write(reinterpret_cast<const char *>(this->guessed),
                sizeof(this->guessed));
@@ -65,6 +88,10 @@ void Game::save() const {
     game.write(this->word.c_str(), len * sizeof(char));
 
     game.close();
+}
+
+bool Game::isWon() const {
+    return this->won;
 }
 
 std::ostream &operator<<(std::ostream &os, const Game &game) {

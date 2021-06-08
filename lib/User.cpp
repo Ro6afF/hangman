@@ -18,9 +18,11 @@ User::User(const char *username, const char *email, const char *password) {
 
 void User::loadGuessed() {
     std::ifstream db(std::string(username) + "_guessed");
-
     int num;
     db >> num;
+
+    if (!db.good())
+        num = 0;
 
     std::string s;
     for (int i = 0; i < num; i++) {
@@ -49,7 +51,6 @@ void User::signUp(const char *username, const char *email,
         db.read(reinterpret_cast<char *>(&u), sizeof(u));
 
         // TODO: different exception types
-
         if (strcmp(username, u.username) == 0)
             throw std::invalid_argument("User with this username exists!");
 
@@ -62,7 +63,11 @@ void User::signUp(const char *username, const char *email,
     u = User(username, email, password);
     cnt++;
 
-    db.open("users.db", std::ios::out | std::ios::binary);
+    // create file if not exists
+    db.open("users.db", std::ios::app);
+    db.close();
+
+    db.open("users.db", std::ios::out | std::ios::binary | std::ios::in);
 
     db.seekp(0, std::ios::beg);
     db.write(reinterpret_cast<char *>(&cnt), sizeof(cnt));
@@ -98,6 +103,7 @@ void User::signIn(const char *username, const char *password) {
 
             // ignore what is in guessedWords
             u.guessedWords = std::set<std::string>();
+            u.guessedWords.clear();
             u.loadGuessed();
 
             logedIn = true;
@@ -133,6 +139,7 @@ std::vector<std::pair<int, std::string>> User::getStanding() {
 
         // ignore what is in guessedWords
         u.guessedWords = std::set<std::string>();
+        u.loadGuessed();
 
         standing.push_back(std::make_pair(u.guessedWords.size(), u.username));
     }

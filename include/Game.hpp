@@ -9,6 +9,9 @@ class Game {
     std::string word;
     bool guessed['Z' - 'A' + 1];
     int lives;
+    bool won;
+
+    void checkWin();
 
   public:
     Game();
@@ -16,6 +19,8 @@ class Game {
 
     void guess(char c);
     void save() const;
+    
+    bool isWon() const;
 
     friend std::ostream &operator<<(std::ostream &os, const Game &game);
 };
