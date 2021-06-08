@@ -1,7 +1,9 @@
 #include "WordBank.hpp"
 
+#include "User.hpp"
 #include <cstdlib>
 #include <fstream>
+
 int WordBank::wordCount(std::ifstream &db) {
     int cnt = 0;
 
@@ -15,6 +17,9 @@ int WordBank::wordCount(std::ifstream &db) {
 }
 
 void WordBank::addWord(const char *word) {
+    if (User::getUser() == nullptr)
+        throw std::logic_error("User not logged in!");
+
     std::fstream db("words.db", std::ios::in);
     std::string w(word);
 

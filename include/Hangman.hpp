@@ -16,6 +16,7 @@ class Hangman {
     static void start();
     static void continueGame();
     static void save();
+    static void standing();
     static void exit();
 
   public:

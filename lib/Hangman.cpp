@@ -19,6 +19,7 @@ void Hangman::help() {
         << "  start - start a new game\n"
         << "  continue - load a saved game from file\n"
         << "  # - save the current game\n"
+        << "  standing - print users by score\n"
         << "  exit - exit the game\n";
     out.flush();
 }
@@ -71,7 +72,7 @@ void Hangman::addWord() {
     try {
         WordBank::addWord(w.c_str());
         out << "[ You successfully added a new word! ]" << std::endl;
-    } catch (std::invalid_argument &e) {
+    } catch (std::logic_error &e) {
         out << "[ " << e.what() << " ]" << std::endl;
     }
 }
@@ -109,6 +110,18 @@ void Hangman::save() {
     current = nullptr;
 
     out << "[ Current game stopped and saved to file ]" << std::endl;
+}
+
+void Hangman::standing() {
+    std::ostream &out = *Hangman::out;
+
+    std::vector<std::pair<int, std::string>> stand = User::getStanding();
+
+    int i = 1;
+
+    for (std::pair<int, std::string> &x : stand) {
+        out << "#" << i++ << " " << x.second << " " << x.first << std::endl;
+    }
 }
 
 void Hangman::exit() {
@@ -157,6 +170,8 @@ void Hangman::run(std::istream &inp, std::ostream &out) {
             exit();
         else if (cmd == "help")
             help();
+        else if (cmd == "standing")
+            standing();
         else if (current == nullptr && cmd == "login")
             login();
         else if (current == nullptr && cmd == "register")
