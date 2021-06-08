@@ -16,10 +16,20 @@ int WordBank::wordCount(std::ifstream &db) {
 
 void WordBank::addWord(const char *word) {
     std::fstream db("words.db", std::ios::in);
+    std::string w(word);
+
+    for (size_t i = 0; i < w.size(); i++) {
+        if (w[i] >= 'a' && w[i] <= 'z')
+            w[i] = w[i] + 'A' - 'a';
+
+        if (w[i] < 'A' || w[i] > 'Z')
+            throw std::invalid_argument(
+                "Word contains symbols which are not letters");
+    }
 
     std::string s;
     while (db >> s)
-        if (s == word)
+        if (s == w)
             throw std::invalid_argument("Word already exists!");
 
     db.close();
@@ -27,7 +37,7 @@ void WordBank::addWord(const char *word) {
     db.open("words.db", std::ios::app);
     db.seekp(0, std::ios::end);
 
-    db << word << std::endl;
+    db << w << std::endl;
 
     db.close();
 }

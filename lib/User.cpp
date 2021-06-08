@@ -1,5 +1,6 @@
 #include "User.hpp"
 
+#include <algorithm>
 #include <cstring>
 #include <fstream>
 #include <stdexcept>
@@ -13,6 +14,21 @@ User::User(const char *username, const char *email, const char *password) {
     strcpy(this->username, username);
     strcpy(this->email, email);
     strcpy(this->password, password);
+}
+
+void User::loadGuessed() {
+    std::ifstream db(std::string(username) + "_guessed");
+
+    int num;
+    db >> num;
+
+    std::string s;
+    for (int i = 0; i < num; i++) {
+        db >> s;
+        this->guessedWords.insert(s);
+    }
+
+    db.close();
 }
 
 void User::signUp(const char *username, const char *email,
@@ -51,6 +67,7 @@ void User::signUp(const char *username, const char *email,
     db.seekp(0, std::ios::beg);
     db.write(reinterpret_cast<char *>(&cnt), sizeof(cnt));
 
+    // writes guessedWords too, but it is ignored when reading
     db.seekp(0, std::ios::end);
     db.write(reinterpret_cast<char *>(&u), sizeof(u));
 
@@ -79,6 +96,10 @@ void User::signIn(const char *username, const char *password) {
         if (strcmp(password, u.password) == 0) {
             db.close();
 
+            // ignore what is in guessedWords
+            u.guessedWords = std::set<std::string>();
+            u.loadGuessed();
+
             logedIn = true;
             user = u;
 
@@ -91,11 +112,63 @@ void User::signIn(const char *username, const char *password) {
     throw std::invalid_argument("Wrong username or password!");
 }
 
+std::vector<std::pair<int, std::string>> User::getStanding() {
+    std::fstream db("users.db", std::ios::in | std::ios::binary);
+
+    int cnt;
+
+    db.seekg(0, std::ios::beg);
+    db.read(reinterpret_cast<char *>(&cnt), sizeof(cnt));
+
+    if (!db.good())
+        cnt = 0;
+
+    std::vector<std::pair<int, std::string>> standing;
+    standing.reserve(cnt);
+
+    User u;
+    for (int i = 0; i < cnt; i++) {
+        db.seekg(sizeof(cnt) + i * sizeof(u), std::ios::beg);
+        db.read(reinterpret_cast<char *>(&u), sizeof(u));
+
+        // ignore what is in guessedWords
+        u.guessedWords = std::set<std::string>();
+
+        standing.push_back(std::make_pair(u.guessedWords.size(), u.username));
+    }
+
+    std::sort(standing.begin(), standing.end(),
+              [](std::pair<int, std::string> a, std::pair<int, std::string> b) {
+                  if (a.first == b.first)
+                      return a.second < b.second;
+                  return a.first > b.first;
+              });
+
+    return standing;
+}
+
 User *User::getUser() {
     if (!logedIn)
         return nullptr;
 
     return &user;
+}
+
+void User::addGuessed(const char *word) {
+    std::ofstream file(std::string(this->username) + "_guessed");
+
+    this->guessedWords.insert(word);
+
+    file << this->guessedWords.size() << std::endl;
+
+    for (const std::string &x : this->guessedWords)
+        file << x << std::endl;
+
+    file.close();
+}
+
+int User::guessedWordsCount() const {
+    return this->guessedWords.size();
 }
 
 const char *User::getUsername() const {

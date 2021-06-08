@@ -7,10 +7,9 @@
 
 int main() {
     srand(time(0));
-
     User::signIn("banan", "banan");
 
-    Game g("banan_519.hang");
+    Game g;
     char c;
     do {
         std::cout << g;
