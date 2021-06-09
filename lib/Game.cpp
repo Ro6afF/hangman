@@ -15,8 +15,9 @@ Game::Game() {
     for (int i = 'A'; i <= 'Z'; i++) {
         this->guessed[i - 'A'] = false;
     }
-    guessed[word[0] - 'A'] = true;
-    won = false;
+    this->guessed[this->word[0] - 'A'] = true;
+    this->won = false;
+    this->lost = false;
 
     this->lives = 6;
 }

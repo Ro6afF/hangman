@@ -15,6 +15,7 @@ void Hangman::help() {
         << "  help - display this message\n"
         << "  login - log in to the game\n"
         << "  register - make a new account in the game\n"
+        << "  resetPass - reset password\n"
         << "  addWord - add a new word to the bank\n"
         << "  start - start a new game\n"
         << "  continue - load a saved game from file\n"
@@ -57,6 +58,26 @@ void Hangman::signUp() {
     try {
         User::signUp(username.c_str(), email.c_str(), pass.c_str());
         out << "[ Successful regstration! ]" << std::endl;
+    } catch (std::invalid_argument &e) {
+        out << "[ " << e.what() << " ]" << std::endl;
+    }
+}
+
+void Hangman::resetPass() {
+    std::istream &inp = *Hangman::inp;
+    std::ostream &out = *Hangman::out;
+
+    std::string username, pass, email;
+    out << "Username: ";
+    inp >> username;
+    out << "Email: ";
+    inp >> email;
+    out << "New password: ";
+    inp >> pass;
+
+    try {
+        User::resetPassword(username.c_str(), email.c_str(), pass.c_str());
+        out << "[ Password changed sucessfully! ]" << std::endl;
     } catch (std::invalid_argument &e) {
         out << "[ " << e.what() << " ]" << std::endl;
     }
@@ -158,7 +179,17 @@ void Hangman::run(std::istream &inp, std::ostream &out) {
             out << "$ ";
         else {
             out << *current;
-            out << "Pick a letter --> ";
+            if (current->isLost()) {
+                out << "You lost!!!\n$ ";
+                delete current;
+                current = nullptr;
+            } else if (current->isWon()) {
+                out << "YOU WON!\n$ ";
+                delete current;
+                current = nullptr;
+            } else {
+                out << "Pick a letter --> ";
+            }
         }
         inp >> cmd;
 
@@ -176,6 +207,8 @@ void Hangman::run(std::istream &inp, std::ostream &out) {
             login();
         else if (current == nullptr && cmd == "register")
             signUp();
+        else if (current == nullptr && cmd == "resetpass")
+            resetPass();
         else if (current == nullptr && cmd == "addword")
             addWord();
         else if (current == nullptr && cmd == "start")

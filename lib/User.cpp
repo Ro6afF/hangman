@@ -118,6 +118,48 @@ void User::signIn(const char *username, const char *password) {
     throw std::invalid_argument("Wrong username or password!");
 }
 
+void User::resetPassword(const char *username, const char *email,
+                         const char *password) {
+    std::fstream db("users.db",
+                    std::ios::in | std::ios::binary | std::ios::out);
+
+    int cnt;
+
+    db.seekg(0, std::ios::beg);
+    db.read(reinterpret_cast<char *>(&cnt), sizeof(cnt));
+
+    if (!db.good())
+        cnt = 0;
+
+    User u;
+    for (int i = 0; i < cnt; i++) {
+        db.seekg(sizeof(cnt) + i * sizeof(u), std::ios::beg);
+        db.read(reinterpret_cast<char *>(&u), sizeof(u));
+
+        if (strcmp(username, u.username) != 0)
+            continue;
+
+        if (strcmp(email, u.email) != 0)
+            continue;
+
+        // ignore what is in guessedWords
+        u.guessedWords = std::set<std::string>();
+        u.guessedWords.clear();
+        u.loadGuessed();
+
+        strcpy(u.password, password);
+
+        db.seekp(sizeof(cnt) + i * sizeof(u), std::ios::beg);
+        db.write(reinterpret_cast<char *>(&u), sizeof(u));
+        db.close();
+
+        return;
+    }
+    db.close();
+    throw std::invalid_argument(
+        "No user found with the given mail and password!");
+}
+
 std::vector<std::pair<int, std::string>> User::getStanding() {
     std::fstream db("users.db", std::ios::in | std::ios::binary);
 
@@ -189,5 +231,3 @@ const char *User::getEmail() const {
 const char *User::getPassword() const {
     return this->password;
 }
-
-// TODO: setters

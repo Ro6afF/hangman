@@ -12,6 +12,7 @@ class Hangman {
     static void help();
     static void login();
     static void signUp();
+    static void resetPass();
     static void addWord();
     static void start();
     static void continueGame();

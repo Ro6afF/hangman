@@ -27,6 +27,8 @@ class User {
     static void signUp(const char *username, const char *email,
                        const char *password);
     static void signIn(const char *username, const char *password);
+    static void resetPassword(const char *username, const char *email,
+                              const char *password);
 
     static std::vector<std::pair<int, std::string>> getStanding();
 
@@ -38,10 +40,6 @@ class User {
 
     void addGuessed(const char *word);
     int guessedWordsCount() const;
-
-    void setUsername(const char *password, const char *newUsername);
-    void setEmail(const char *password, const char *newEmail);
-    void setPassword(const char *password, const char *newUsername);
 };
 
 #endif // __USER_HPP
