@@ -2,13 +2,14 @@
 
 #include "User.hpp"
 #include "WordBank.hpp"
+#include "exceptions.hpp"
 #include <algorithm>
 #include <cstring>
 #include <fstream>
 
 Game::Game() {
     if (User::getUser() == nullptr)
-        throw std::logic_error("User not logged in!");
+        throw UserException("User not logged in!");
 
     this->word = WordBank::getRandomWord();
 
@@ -24,9 +25,12 @@ Game::Game() {
 
 Game::Game(const char *file) {
     if (User::getUser() == nullptr)
-        throw std::logic_error("User not logged in!");
+        throw UserException("User not logged in!");
 
     std::ifstream game(file);
+    if (!game.good())
+        throw GameException("File not found!");
+
     game.seekg(0, std::ios::beg);
     game.read(reinterpret_cast<char *>(&this->lives), sizeof(this->lives));
 
@@ -37,6 +41,9 @@ Game::Game(const char *file) {
 
     char *c = new char[len];
     game.read(c, sizeof(char) * len);
+    if (!game.good())
+        throw GameException("File format invalid!");
+
     this->word = c;
     this->checkWin();
 
@@ -60,7 +67,7 @@ void Game::guess(char c) {
         c = c - 'a' + 'A';
 
     if (c < 'A' || c > 'Z')
-        throw std::invalid_argument("Input not a letter");
+        throw GameException("Input not a letter");
 
     if (!won && !lost && !this->guessed[c - 'A']) {
         this->guessed[c - 'A'] = true;

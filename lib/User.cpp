@@ -1,9 +1,9 @@
 #include "User.hpp"
 
+#include "exceptions.hpp"
 #include <algorithm>
 #include <cstring>
 #include <fstream>
-#include <stdexcept>
 
 bool User::logedIn = false;
 User User::user;
@@ -35,6 +35,8 @@ void User::loadGuessed() {
 
 void User::signUp(const char *username, const char *email,
                   const char *password) {
+    if (logedIn)
+        throw UserException("Already loged in!");
     std::fstream db("users.db", std::ios::in | std::ios::binary);
 
     int cnt;
@@ -52,10 +54,10 @@ void User::signUp(const char *username, const char *email,
 
         // TODO: different exception types
         if (strcmp(username, u.username) == 0)
-            throw std::invalid_argument("User with this username exists!");
+            throw UserException("User with this username exists!");
 
         if (strcmp(email, u.email) == 0)
-            throw std::invalid_argument("User with this email exists!");
+            throw UserException("User with this email exists!");
     }
 
     db.close();
@@ -80,6 +82,9 @@ void User::signUp(const char *username, const char *email,
 }
 
 void User::signIn(const char *username, const char *password) {
+    if (logedIn)
+        throw UserException("Already loged in!");
+
     std::fstream db("users.db", std::ios::in | std::ios::binary);
 
     int cnt;
@@ -115,11 +120,14 @@ void User::signIn(const char *username, const char *password) {
     }
 
     db.close();
-    throw std::invalid_argument("Wrong username or password!");
+    throw UserException("Wrong username or password!");
 }
 
 void User::resetPassword(const char *username, const char *email,
                          const char *password) {
+    if (logedIn)
+        throw UserException("Already loged in!");
+
     std::fstream db("users.db",
                     std::ios::in | std::ios::binary | std::ios::out);
 
@@ -156,13 +164,12 @@ void User::resetPassword(const char *username, const char *email,
         return;
     }
     db.close();
-    throw std::invalid_argument(
-        "No user found with the given mail and password!");
+    throw UserException("No user found with the given mail and password!");
 }
 
 std::vector<std::pair<int, std::string>> User::getStanding() {
     if (!logedIn)
-        throw std::logic_error("User not logged in!");
+        throw UserException("User not logged in!");
 
     std::fstream db("users.db", std::ios::in | std::ios::binary);
 

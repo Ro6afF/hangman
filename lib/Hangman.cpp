@@ -3,6 +3,7 @@
 #include "Game.hpp"
 #include "User.hpp"
 #include "WordBank.hpp"
+#include "exceptions.hpp"
 
 std::istream *Hangman::inp = nullptr;
 std::ostream *Hangman::out = nullptr;
@@ -38,9 +39,7 @@ void Hangman::login() {
     try {
         User::signIn(username.c_str(), pass.c_str());
         out << "[ Successful login! ]" << std::endl;
-    } catch (std::invalid_argument &e) {
-        out << "[ " << e.what() << " ]" << std::endl;
-    }
+    } catch (UserException &e) { out << "[ " << e.what() << " ]" << std::endl; }
 }
 
 void Hangman::signUp() {
@@ -58,9 +57,7 @@ void Hangman::signUp() {
     try {
         User::signUp(username.c_str(), email.c_str(), pass.c_str());
         out << "[ Successful regstration! ]" << std::endl;
-    } catch (std::invalid_argument &e) {
-        out << "[ " << e.what() << " ]" << std::endl;
-    }
+    } catch (UserException &e) { out << "[ " << e.what() << " ]" << std::endl; }
 }
 
 void Hangman::resetPass() {
@@ -78,9 +75,7 @@ void Hangman::resetPass() {
     try {
         User::resetPassword(username.c_str(), email.c_str(), pass.c_str());
         out << "[ Password changed sucessfully! ]" << std::endl;
-    } catch (std::invalid_argument &e) {
-        out << "[ " << e.what() << " ]" << std::endl;
-    }
+    } catch (UserException &e) { out << "[ " << e.what() << " ]" << std::endl; }
 }
 
 void Hangman::addWord() {
@@ -93,7 +88,7 @@ void Hangman::addWord() {
     try {
         WordBank::addWord(w.c_str());
         out << "[ You successfully added a new word! ]" << std::endl;
-    } catch (std::logic_error &e) {
+    } catch (WordBankException &e) {
         out << "[ " << e.what() << " ]" << std::endl;
     }
 }
@@ -144,9 +139,7 @@ void Hangman::standing() {
         for (std::pair<int, std::string> &x : stand) {
             out << "#" << i++ << " " << x.second << " " << x.first << std::endl;
         }
-    } catch (std::logic_error &e) {
-        out << "[ " << e.what() << " ]" << std::endl;
-    }
+    } catch (UserException &e) { out << "[ " << e.what() << " ]" << std::endl; }
 }
 
 void Hangman::exit() {
