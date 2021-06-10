@@ -136,12 +136,16 @@ void Hangman::save() {
 void Hangman::standing() {
     std::ostream &out = *Hangman::out;
 
-    std::vector<std::pair<int, std::string>> stand = User::getStanding();
+    try {
+        std::vector<std::pair<int, std::string>> stand = User::getStanding();
 
-    int i = 1;
+        int i = 1;
 
-    for (std::pair<int, std::string> &x : stand) {
-        out << "#" << i++ << " " << x.second << " " << x.first << std::endl;
+        for (std::pair<int, std::string> &x : stand) {
+            out << "#" << i++ << " " << x.second << " " << x.first << std::endl;
+        }
+    } catch (std::logic_error &e) {
+        out << "[ " << e.what() << " ]" << std::endl;
     }
 }
 
@@ -178,6 +182,11 @@ void Hangman::run(std::istream &inp, std::ostream &out) {
         if (current == nullptr)
             out << "$ ";
         else {
+#ifdef WINDOWS
+            system("cls");
+#else
+            system("clear");
+#endif
             out << *current;
             if (current->isLost()) {
                 out << "You lost!!!\n$ ";

@@ -51,7 +51,12 @@ void WordBank::addWord(const char *word) {
 
 std::string WordBank::getRandomWord() {
     std::ifstream db("words.db");
-    int sel = rand() % wordCount(db);
+
+    int cnt = wordCount(db);
+    if (cnt == 0)
+        throw std::logic_error("No words found. Add words first!");
+
+    int sel = rand() % cnt;
 
     db.close();
     db.open("words.db");

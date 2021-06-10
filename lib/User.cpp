@@ -161,6 +161,9 @@ void User::resetPassword(const char *username, const char *email,
 }
 
 std::vector<std::pair<int, std::string>> User::getStanding() {
+    if (!logedIn)
+        throw std::logic_error("User not logged in!");
+
     std::fstream db("users.db", std::ios::in | std::ios::binary);
 
     int cnt;
