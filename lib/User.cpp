@@ -1,5 +1,6 @@
 #include "User.hpp"
 
+#include "bcrypt/BCrypt.hpp"
 #include "exceptions.hpp"
 #include <algorithm>
 #include <cstring>
@@ -13,7 +14,7 @@ User::User() : User("", "", "") {}
 User::User(const char *username, const char *email, const char *password) {
     strcpy(this->username, username);
     strcpy(this->email, email);
-    strcpy(this->password, password);
+    strcpy(this->password, BCrypt::generateHash(password).c_str());
 }
 
 void User::loadGuessed() {
@@ -52,7 +53,6 @@ void User::signUp(const char *username, const char *email,
         db.seekg(sizeof(cnt) + i * sizeof(u), std::ios::beg);
         db.read(reinterpret_cast<char *>(&u), sizeof(u));
 
-        // TODO: different exception types
         if (strcmp(username, u.username) == 0)
             throw UserException("User with this username exists!");
 
@@ -103,7 +103,7 @@ void User::signIn(const char *username, const char *password) {
         if (strcmp(username, u.username) != 0)
             continue;
 
-        if (strcmp(password, u.password) == 0) {
+        if (BCrypt::validatePassword(password, u.password)) {
             db.close();
 
             // ignore what is in guessedWords
