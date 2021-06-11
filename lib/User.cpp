@@ -155,7 +155,7 @@ void User::resetPassword(const char *username, const char *email,
         u.guessedWords.clear();
         u.loadGuessed();
 
-        strcpy(u.password, password);
+        strcpy(u.password, BCrypt::generateHash(password).c_str());
 
         db.seekp(sizeof(cnt) + i * sizeof(u), std::ios::beg);
         db.write(reinterpret_cast<char *>(&u), sizeof(u));
