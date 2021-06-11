@@ -19,7 +19,7 @@ int WordBank::wordCount(std::ifstream &db) {
 
 void WordBank::addWord(const char *word) {
     if (User::getUser() == nullptr)
-        throw WordBankException("User not logged in!");
+        throw UserException("User not logged in!");
 
     std::fstream db("words.db", std::ios::in);
     std::string w(word);

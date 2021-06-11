@@ -88,7 +88,7 @@ void Hangman::addWord() {
     try {
         WordBank::addWord(w.c_str());
         out << "[ You successfully added a new word! ]" << std::endl;
-    } catch (WordBankException &e) {
+    } catch (std::logic_error &e) {
         out << "[ " << e.what() << " ]" << std::endl;
     }
 }
